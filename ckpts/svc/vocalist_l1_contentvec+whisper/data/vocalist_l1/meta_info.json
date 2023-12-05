@@ -1,0 +1,31 @@
+{
+    "dataset": "vocalist_l1",
+    "train": {
+        "size": 3180,
+        "hours": 6.1643
+    },
+    "test": {
+        "size": 114,
+        "hours": 0.2224
+    },
+    "singers": {
+        "size": 15,
+        "training_minutes": {
+            "vocalist_l1_陶喆": 45.51,
+            "vocalist_l1_陈奕迅": 43.36,
+            "vocalist_l1_汪峰": 41.08,
+            "vocalist_l1_李健": 38.9,
+            "vocalist_l1_JohnMayer": 30.83,
+            "vocalist_l1_Adele": 27.23,
+            "vocalist_l1_那英": 27.02,
+            "vocalist_l1_石倚洁": 24.93,
+            "vocalist_l1_张学友": 18.31,
+            "vocalist_l1_TaylorSwift": 18.31,
+            "vocalist_l1_王菲": 16.78,
+            "vocalist_l1_MichaelJackson": 15.13,
+            "vocalist_l1_蔡琴": 10.12,
+            "vocalist_l1_BrunoMars": 6.29,
+            "vocalist_l1_Beyonce": 6.06
+        }
+    }
+}

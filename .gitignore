@@ -1,0 +1,18 @@
+__pycache__
+flagged
+result
+
+# Developing mode
+_*.sh
+_*.json
+*.lst
+yard*
+*.out
+evaluation/evalset_selection
+mfa
+egs/svc/*wavmark
+egs/svc/custom
+egs/svc/*/dev*
+egs/svc/dev_exp_config.json
+bins/svc/demo*
+bins/svc/preprocess_custom.py
