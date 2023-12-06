@@ -1,8 +1,8 @@
 ---
 title: Singing Voice Conversion
 emoji: 🎼
-colorFrom: indigo
-colorTo: yellow
+colorFrom: yellow
+colorTo: orange
 sdk: gradio
 sdk_version: 4.8.0
 python_version: 3.9.15
