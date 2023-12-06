@@ -25,8 +25,8 @@ tensorboardX
 torch==2.0.1
 torchaudio==2.0.2
 torchvision==0.15.2
-transformers
-diffusers
+transformers==4.30.2
+diffusers==0.19.3
 accelerate
 praat-parselmouth
 audiomentations
