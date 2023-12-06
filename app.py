@@ -1,5 +1,11 @@
-import gradio as gr
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
+import gradio as gr
+import os
+import inference
 
 SUPPORTED_TARGET_SINGERS = {
     "Adele": "vocalist_l1_Adele",
@@ -21,32 +27,57 @@ SUPPORTED_TARGET_SINGERS = {
 
 
 def svc_inference(
-    source_audio,
+    source_audio_path,
     target_singer,
-    diffusion_steps=1000,
-    key_shift_mode="auto",
+    key_shift_mode="Auto Shift",
     key_shift_num=0,
+    diffusion_steps=1000,
 ):
-    pass
+    #### Prepare source audio file ####
+    print("source_audio_path: {}".format(source_audio_path))
+    audio_file = source_audio_path.split("/")[-1]
+    audio_name = audio_file.split(".")[0]
+    source_audio_dir = source_audio_path.replace(audio_file, "")
+
+    ### Target Singer ###
+    target_singer = SUPPORTED_TARGET_SINGERS[target_singer]
+
+    ### Inference ###
+    if key_shift_mode == "Auto Shift":
+        key_shift = "autoshift"
+    else:
+        key_shift = key_shift_num
+
+    args_list = ["--config", "ckpts/svc/vocalist_l1_contentvec+whisper/args.json"]
+    args_list += ["--acoustics_dir", "ckpts/svc/vocalist_l1_contentvec+whisper"]
+    args_list += ["--vocoder_dir", "pretrained/bigvgan"]
+    args_list += ["--target_singer", target_singer]
+    args_list += ["--trans_key", str(key_shift)]
+    args_list += ["--diffusion_inference_steps", str(diffusion_steps)]
+    args_list += ["--source", source_audio_dir]
+    args_list += ["--output_dir", "result"]
+    args_list += ["--log_level", "debug"]
+
+    os.environ["WORK_DIR"] = "./"
+    inference.main(args_list)
+
+    ### Display ###
+    result_file = os.path.join(
+        "result/{}/{}_{}.wav".format(audio_name, audio_name, target_singer)
+    )
+    return result_file
 
 
 demo_inputs = [
     gr.Audio(
         sources=["upload", "microphone"],
         label="Upload (or record) a song you want to listen",
+        type="filepath",
     ),
     gr.Radio(
         choices=list(SUPPORTED_TARGET_SINGERS.keys()),
         label="Target Singer",
         value="Jian Li 李健",
-    ),
-    gr.Slider(
-        1,
-        1000,
-        value=1000,
-        step=1,
-        label="Diffusion Inference Steps",
-        info="As the step number increases, the synthesis quality will be better while the inference speed will be lower",
     ),
     gr.Radio(
         choices=["Auto Shift", "Key Shift"],
@@ -61,6 +92,14 @@ demo_inputs = [
         step=1,
         label="Key Shift Values",
         info='How many semitones you want to transpose.	This parameter will work only if you choose "Key Shift"',
+    ),
+    gr.Slider(
+        1,
+        1000,
+        value=1000,
+        step=1,
+        label="Diffusion Inference Steps",
+        info="As the step number increases, the synthesis quality will be better while the inference speed will be lower",
     ),
 ]
 

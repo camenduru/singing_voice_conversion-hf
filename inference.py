@@ -208,9 +208,9 @@ def build_parser():
     return parser
 
 
-def main():
+def main(args_list):
     ### Parse arguments and config
-    args = build_parser().parse_args()
+    args = build_parser().parse_args(args_list)
     cfg = load_config(args.config)
 
     # CUDA settings
@@ -256,3 +256,7 @@ def main():
     else:
         ### Infer from dataset
         infer(args, cfg, infer_type="from_dataset")
+
+
+if __name__ == "__main__":
+    main()

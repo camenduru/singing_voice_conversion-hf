@@ -1,5 +1,5 @@
 {
-    "base_config": "config/diffusion.json",
+    "task_type": "svc",
     "dataset": [
         "vocalist_l1",
     ],
@@ -195,6 +195,7 @@
         "whisper_frameshift": 0.01,
         "whisper_model": "medium",
         "whisper_model_path": "pretrained/whisper/medium.pt",
+        "whisper_sample_rate": 16000,
         "win_size": 1024,
     },
     "supported_model_type": [

@@ -21,7 +21,7 @@ from scipy.interpolate import interp1d
 
 ZERO = 1e-12
 
-            
+
 def extract_utt_acoustic_features_parallel(metadata, dataset_output, cfg, n_workers=1):
     """Extract acoustic features from utterances using muliprocess
 
@@ -215,15 +215,54 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
         if cfg.preprocess.extract_acoustic_token:
             if cfg.preprocess.acoustic_token_extractor == "Encodec":
                 codes = extract_encodec_token(wav_path)
-                save_feature(dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes)
-            
+                save_feature(
+                    dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes
+                )
+
 
 def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
     __extract_utt_acoustic_features(dataset_output, cfg, utt)
 
 
 def extract_utt_acoustic_features_svc(dataset_output, cfg, utt):
-    __extract_utt_acoustic_features(dataset_output, cfg, utt)
+    """Extract acoustic features from utterances (in single process)
+
+    Args:
+        dataset_output (str): directory to store acoustic features
+        cfg (dict): dictionary that stores configurations
+        utt (dict): utterance info including dataset, singer, uid:{singer}_{song}_{index},
+                    path to utternace, duration, utternace index
+
+    """
+    from utils import audio, f0, world, duration
+
+    uid = utt["Uid"]
+    wav_path = utt["Path"]
+
+    with torch.no_grad():
+        # Load audio data into tensor with sample rate of the config file
+        wav_torch, _ = audio.load_audio_torch(wav_path, cfg.preprocess.sample_rate)
+        wav = wav_torch.cpu().numpy()
+
+        # extract features
+        if cfg.preprocess.extract_mel:
+            from utils.mel import extract_mel_features
+
+            mel = extract_mel_features(wav_torch.unsqueeze(0), cfg.preprocess)
+            save_feature(dataset_output, cfg.preprocess.mel_dir, uid, mel.cpu().numpy())
+
+        if cfg.preprocess.extract_energy:
+            energy = (mel.exp() ** 2).sum(0).sqrt().cpu().numpy()
+            save_feature(dataset_output, cfg.preprocess.energy_dir, uid, energy)
+
+        if cfg.preprocess.extract_pitch:
+            pitch = f0.get_f0(wav, cfg.preprocess)
+            save_feature(dataset_output, cfg.preprocess.pitch_dir, uid, pitch)
+
+            if cfg.preprocess.extract_uv:
+                assert isinstance(pitch, np.ndarray)
+                uv = pitch != 0
+                save_feature(dataset_output, cfg.preprocess.uv_dir, uid, uv)
 
 
 def extract_utt_acoustic_features_tta(dataset_output, cfg, utt):
