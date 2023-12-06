@@ -43,3 +43,4 @@ pymcd
 openai-whisper
 frechet_audio_distance
 asteroid
+https://github.com/vBaiCai/python-pesq/archive/master.zip
