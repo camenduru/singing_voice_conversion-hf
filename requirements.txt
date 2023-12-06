@@ -1,6 +1,7 @@
 setuptools
 ruamel.yaml
-tqdmcolorama
+tqdm
+colorama
 easydict
 tabulate
 loguru
