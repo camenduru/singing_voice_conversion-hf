@@ -68,50 +68,124 @@ def svc_inference(
     return result_file
 
 
-demo_inputs = [
-    gr.Audio(
+with gr.Blocks() as demo:
+    gr.Markdown(
+        """
+        # Amphion Singing Voice Conversion: *DiffWaveNetSVC*        
+        This demo provide an Amphion [DiffWaveNetSVC](https://github.com/open-mmlab/Amphion/tree/main/egs/svc/MultipleContentsSVC) pretrained model for you to play. The training data has been detailed [here](https://huggingface.co/amphion/singing_voice_conversion).
+        """
+    )
+
+    gr.Markdown(
+        """
+        ## Source Audio
+        **Hint**: We recommend using dry vocals (e.g., studio recordings or source-separated voices from music) as the input for this demo. At the bottom of this page, we provide some examples for your reference.
+        """
+    )
+    source_audio_input = gr.Audio(
         sources=["upload", "microphone"],
-        label="Upload (or record) a song you want to listen",
+        label="Source Audio",
         type="filepath",
-    ),
-    gr.Radio(
-        choices=list(SUPPORTED_TARGET_SINGERS.keys()),
-        label="Target Singer",
-        value="Jian Li 李健",
-    ),
-    gr.Radio(
-        choices=["Auto Shift", "Key Shift"],
-        value="Auto Shift",
-        label="Pitch Shift Control",
-        info='If you want to control the specific pitch shift value, you need to choose "Key Shift"',
-    ),
-    gr.Slider(
-        -6,
-        6,
-        value=0,
-        step=1,
-        label="Key Shift Values",
-        info='How many semitones you want to transpose.	This parameter will work only if you choose "Key Shift"',
-    ),
-    gr.Slider(
-        1,
-        1000,
-        value=1000,
-        step=1,
-        label="Diffusion Inference Steps",
-        info="As the step number increases, the synthesis quality will be better while the inference speed will be lower",
-    ),
-]
+    )
 
-demo_outputs = gr.Audio(label="")
+    with gr.Row():
+        with gr.Column():
+            config_target_singer = gr.Radio(
+                choices=list(SUPPORTED_TARGET_SINGERS.keys()),
+                label="Target Singer",
+                value="Jian Li 李健",
+            )
+            config_keyshift_choice = gr.Radio(
+                choices=["Auto Shift", "Key Shift"],
+                value="Auto Shift",
+                label="Pitch Shift Control",
+                info='If you want to control the specific pitch shift value, you need to choose "Key Shift"',
+            )
 
+        # gr.Markdown("## Conversion Configurations")
+        with gr.Column():
+            config_keyshift_value = gr.Slider(
+                -6,
+                6,
+                value=0,
+                step=1,
+                label="Key Shift Values",
+                info='How many semitones you want to transpose.	This parameter will work only if you choose "Key Shift"',
+            )
+            config_diff_infer_steps = gr.Slider(
+                1,
+                1000,
+                value=1000,
+                step=1,
+                label="Diffusion Inference Steps",
+                info="As the step number increases, the synthesis quality will be better while the inference speed will be lower",
+            )
+            btn = gr.ClearButton(
+                components=[
+                    config_target_singer,
+                    config_keyshift_choice,
+                    config_keyshift_value,
+                    config_diff_infer_steps,
+                ]
+            )
+            btn = gr.Button(value="Submit", variant="primary")
 
-demo = gr.Interface(
-    fn=svc_inference,
-    inputs=demo_inputs,
-    outputs=demo_outputs,
-    title="Amphion Singing Voice Conversion",
-)
+    gr.Markdown("## Conversion Result")
+    demo_outputs = gr.Audio(label="Conversion Result")
+
+    btn.click(
+        fn=svc_inference,
+        inputs=[
+            source_audio_input,
+            config_target_singer,
+            config_keyshift_choice,
+            config_keyshift_value,
+            config_diff_infer_steps,
+        ],
+        outputs=demo_outputs,
+    )
+
+    gr.Markdown("## Examples")
+    gr.Examples(
+        examples=[
+            [
+                "examples/chinese_female_recordings.wav",
+                "John Mayer",
+                "Auto Shift",
+                1000,
+                "examples/output/chinese_female_recordings_vocalist_l1_JohnMayer.wav",
+            ],
+            [
+                "examples/chinese_male_seperated.wav",
+                "Taylor Swift",
+                "Auto Shift",
+                1000,
+                "examples/output/chinese_male_seperated_vocalist_l1_TaylorSwift.wav",
+            ],
+            [
+                "examples/english_female_seperated.wav",
+                "Feng Wang 汪峰",
+                "Auto Shift",
+                1000,
+                "examples/output/english_female_seperated_vocalist_l1_汪峰.wav",
+            ],
+            [
+                "examples/english_male_recordings.wav",
+                "Yijie Shi 石倚洁",
+                "Auto Shift",
+                1000,
+                "examples/output/english_male_recordings_vocalist_l1_石倚洁.wav",
+            ],
+        ],
+        inputs=[
+            source_audio_input,
+            config_target_singer,
+            config_keyshift_choice,
+            config_diff_infer_steps,
+            demo_outputs,
+        ],
+    )
+
 
 if __name__ == "__main__":
     demo.launch()
