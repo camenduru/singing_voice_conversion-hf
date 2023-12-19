@@ -71,8 +71,9 @@ def svc_inference(
 with gr.Blocks() as demo:
     gr.Markdown(
         """
-        # Amphion Singing Voice Conversion: *DiffWaveNetSVC*        
-        This demo provide an Amphion [DiffWaveNetSVC](https://github.com/open-mmlab/Amphion/tree/main/egs/svc/MultipleContentsSVC) pretrained model for you to play. The training data has been detailed [here](https://huggingface.co/amphion/singing_voice_conversion).
+        # Amphion Singing Voice Conversion: *DiffWaveNetSVC*
+        [![Open in OpenXLab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/usercenter/Amphion)        
+        This demo provides an Amphion [DiffWaveNetSVC](https://github.com/open-mmlab/Amphion/tree/main/egs/svc/MultipleContentsSVC) pretrained model for you to play. The training data has been detailed [here](https://huggingface.co/amphion/singing_voice_conversion).
         """
     )
 
